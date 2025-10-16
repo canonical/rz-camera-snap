@@ -1,0 +1,36 @@
+name: rz-camera-ov5645
+base: core24
+version: '0.0.1'
+summary: Gstreamer and media-ctl needed to use the DSI camera for RZ/G2L
+description: |
+  Provides needed binaries and configuration for DSI camera usage.
+
+grade: devel
+confinement: devmode
+
+platforms:
+  arm64:
+    build-on: [amd64, arm64]
+    build-for: [arm64]
+parts:
+  dependencies:
+    plugin: nil
+    stage-packages:
+      - v4l-utils
+      - gstreamer1.0-plugins-good
+      - gstreamer1.0-plugins-bad
+      - gstreamer1.0-plugins-ugly
+      - gstreamer1.0-tools
+    override-build: |
+      craftctl default
+      cp "${CRAFT_PROJECT_DIR}/config-camera.sh" "${CRAFT_PART_INSTALL}/usr/bin"
+
+apps:
+  config:
+    command: usr/bin/config-camera.sh
+  gst-launch:
+    command: usr/bin/gst-launch-1.0
+  media-ctl:
+    command: usr/bin/media-ctl
+  v4l2-ctl:
+    command: usr/bin/v4l2-ctl
