@@ -1,3 +1,4 @@
+# Copyright 2025 Canonical Ltd.  All rights reserved.
 name: rz-camera-ov5645
 base: core24
 version: '0.0.1'

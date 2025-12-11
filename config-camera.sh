@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+# Copyright 2025 Canonical Ltd.  All rights reserved.
+
 export csi2=$(cat /sys/class/video4linux/v4l-subdev*/name | grep "csi2" | head -n 1)
 export ip=$(cat /sys/class/video4linux/v4l-subdev*/name | grep "cru-ip" | head -n 1)
 
