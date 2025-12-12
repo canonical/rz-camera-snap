@@ -12,23 +12,50 @@ platforms:
   arm64:
     build-on: [amd64, arm64]
     build-for: [arm64]
+
+layout:
+  /etc/omxr:
+    bind: $SNAP/etc/omxr
+
+environment:
+  LD_LIBRARY_PATH: "$SNAP/usr/lib/aarch64-linux-gnu/pulseaudio:$SNAP/usr/lib/aarch64-linux-gnu:$SNAP/usr/lib:$LD_LIBRARY_PATH"
+  GST_PLUGIN_PATH: "$SNAP/usr/lib/aarch64-linux-gnu/gstreamer-1.0:$SNAP/usr/lib/gstreamer-1.0"
+  GST_PLUGIN_SYSTEM_PATH: "$SNAP/usr/lib/aarch64-linux-gnu/gstreamer-1.0"
+  XDG_CONFIG_DIRS: "$SNAP/etc/xdg:$XDG_CONFIG_DIRS"
+  PATH: "$SNAP/usr/sbin:$SNAP/usr/bin:$SNAP/sbin:$SNAP/bin:$PATH"
+
 parts:
+  renesas-libs: # FIXME: The codec packages should be published to lp:~ubuntu-on-renesas public PPA for final use.
+    plugin: nil
+    source: ./libs
+    override-build: |
+      for deb in $CRAFT_PART_SRC/*.deb; do
+        dpkg -x "$deb" $CRAFT_PART_INSTALL
+      done
+
   dependencies:
     plugin: nil
+    after: [renesas-libs]
     stage-packages:
       - v4l-utils
       - gstreamer1.0-plugins-good
       - gstreamer1.0-plugins-bad
       - gstreamer1.0-plugins-ugly
       - gstreamer1.0-tools
+      - libgstreamer1.0-0
+      - libgstreamer-plugins-base1.0-0
+      - libglib2.0-0
     override-build: |
       craftctl default
       cp "${CRAFT_PROJECT_DIR}/config-camera.sh" "${CRAFT_PART_INSTALL}/usr/bin"
+      cp "${CRAFT_PROJECT_DIR}/launch-omx.sh" "${CRAFT_PART_INSTALL}/usr/bin"
 
 apps:
   config:
     command: usr/bin/config-camera.sh
   gst-launch:
+    command-chain: 
+      - usr/bin/launch-omx.sh
     command: usr/bin/gst-launch-1.0
   media-ctl:
     command: usr/bin/media-ctl
