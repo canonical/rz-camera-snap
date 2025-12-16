@@ -25,17 +25,8 @@ environment:
   PATH: "$SNAP/usr/sbin:$SNAP/usr/bin:$SNAP/sbin:$SNAP/bin:$PATH"
 
 parts:
-  renesas-libs: # FIXME: The codec packages should be published to lp:~ubuntu-on-renesas public PPA for final use.
-    plugin: nil
-    source: ./libs
-    override-build: |
-      for deb in $CRAFT_PART_SRC/*.deb; do
-        dpkg -x "$deb" $CRAFT_PART_INSTALL
-      done
-
   dependencies:
     plugin: nil
-    after: [renesas-libs]
     stage-packages:
       - v4l-utils
       - gstreamer1.0-plugins-good
@@ -45,6 +36,13 @@ parts:
       - libgstreamer1.0-0
       - libgstreamer-plugins-base1.0-0
       - libglib2.0-0
+      - gst-omx-rz
+      - gst-rzg-vspmfilter
+      - mmngr
+      - mmngrbuf
+      - rz-codex-omx
+      - vspmif
+      - vspmif-tp
     override-build: |
       craftctl default
       cp "${CRAFT_PROJECT_DIR}/config-camera.sh" "${CRAFT_PART_INSTALL}/usr/bin"
