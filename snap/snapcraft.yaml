@@ -40,7 +40,7 @@ parts:
       - gst-rzg-vspmfilter
       - mmngr
       - mmngrbuf
-      - rz-codex-omx
+      - rz-codec-omx
       - vspmif
       - vspmif-tp
     override-build: |
