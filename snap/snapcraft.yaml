@@ -1,12 +1,12 @@
 name: rz-camera-ov5645
 base: core24
-version: '0.0.1'
 summary: Gstreamer and media-ctl needed to use the DSI camera for RZ/G2L
 description: |
   Provides needed binaries and configuration for DSI camera usage.
 
 grade: devel
 confinement: devmode
+adopt-info: dependencies
 
 platforms:
   arm64:
@@ -43,6 +43,9 @@ parts:
       - rz-codec-omx
       - vspmif
       - vspmif-tp
+    override-pull: |
+      craftctl default
+      craftctl set version="0.0.1"+`date +%Y%m%d`      
     override-build: |
       craftctl default
       cp "${CRAFT_PROJECT_DIR}/config-camera.sh" "${CRAFT_PART_INSTALL}/usr/bin"
