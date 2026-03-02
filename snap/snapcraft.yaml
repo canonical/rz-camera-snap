@@ -6,7 +6,7 @@ description: |
   Provides needed binaries and configuration for DSI camera usage.
 
 grade: devel
-confinement: devmode
+confinement: strict
 
 platforms:
   arm64:
