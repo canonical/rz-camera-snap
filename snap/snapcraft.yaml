@@ -1,36 +1,90 @@
 name: rz-camera-ov5645
 base: core24
-version: '0.0.1'
 summary: Gstreamer and media-ctl needed to use the DSI camera for RZ/G2L
 description: |
   Provides needed binaries and configuration for DSI camera usage.
 
 grade: devel
-confinement: devmode
+confinement: strict
+adopt-info: dependencies
 
 platforms:
   arm64:
     build-on: [amd64, arm64]
     build-for: [arm64]
+
+package-repositories:
+  - type: apt
+    architectures: [$CRAFT_ARCH_BUILD_FOR]
+    formats: [deb, deb-src]
+    components: [main, universe]
+    suites: [noble, noble-updates, noble-backports]
+    key-id: F6ECB3762474EDA9D21B7022871920D1991BC93C
+    url: http://ports.ubuntu.com/ubuntu-ports
+
+  - type: apt
+    architectures: [$CRAFT_ARCH_BUILD_FOR]
+    formats: [deb, deb-src]
+    components: [main]
+    suites: [noble]
+    key-id: 1E72A68F43DA1C8E4BB7B59356451E45B00B4CB5
+    url: http://ppa.launchpad.net/ubuntu-on-renesas/public-ppa/ubuntu
+
+layout:
+  /etc/omxr:
+    bind: $SNAP/etc/omxr
+
+environment:
+  LD_LIBRARY_PATH: "$SNAP/usr/lib/aarch64-linux-gnu/pulseaudio:$SNAP/usr/lib/aarch64-linux-gnu:$SNAP/usr/lib:$LD_LIBRARY_PATH"
+  GST_PLUGIN_PATH: "$SNAP/usr/lib/aarch64-linux-gnu/gstreamer-1.0:$SNAP/usr/lib/gstreamer-1.0"
+  GST_PLUGIN_SYSTEM_PATH: "$SNAP/usr/lib/aarch64-linux-gnu/gstreamer-1.0"
+  XDG_CONFIG_DIRS: "$SNAP/etc/xdg:$XDG_CONFIG_DIRS"
+  PATH: "$SNAP/usr/sbin:$SNAP/usr/bin:$SNAP/sbin:$SNAP/bin:$PATH"
+
 parts:
   dependencies:
     plugin: nil
     stage-packages:
-      - v4l-utils
-      - gstreamer1.0-plugins-good
-      - gstreamer1.0-plugins-bad
-      - gstreamer1.0-plugins-ugly
-      - gstreamer1.0-tools
+      - v4l-utils:$CRAFT_ARCH_BUILD_FOR
+      - gstreamer1.0-plugins-good:$CRAFT_ARCH_BUILD_FOR
+      - gstreamer1.0-plugins-bad:$CRAFT_ARCH_BUILD_FOR
+      - gstreamer1.0-plugins-ugly:$CRAFT_ARCH_BUILD_FOR
+      - gstreamer1.0-tools:$CRAFT_ARCH_BUILD_FOR
+      - gstreamer1.0-plugins-base-apps:$CRAFT_ARCH_BUILD_FOR
+      - libgstreamer1.0-0:$CRAFT_ARCH_BUILD_FOR
+      - libgstreamer-plugins-base1.0-0:$CRAFT_ARCH_BUILD_FOR
+      - libglib2.0-0t64:$CRAFT_ARCH_BUILD_FOR
+      - gstreamer1.0-omx-rz:$CRAFT_ARCH_BUILD_FOR
+      - gstreamer1.0-plugin-vspmfilter:$CRAFT_ARCH_BUILD_FOR
+      - libmmngr1:$CRAFT_ARCH_BUILD_FOR
+      - libmmngrbuf1:$CRAFT_ARCH_BUILD_FOR
+      - librzhwcodecs3:$CRAFT_ARCH_BUILD_FOR
+      - libvspm1:$CRAFT_ARCH_BUILD_FOR
+    override-pull: |
+      craftctl default
+      craftctl set version="0.0.1"+`date +%Y%m%d`
     override-build: |
       craftctl default
       cp "${CRAFT_PROJECT_DIR}/config-camera.sh" "${CRAFT_PART_INSTALL}/usr/bin"
+      cp "${CRAFT_PROJECT_DIR}/launch-omx.sh" "${CRAFT_PART_INSTALL}/usr/bin"
 
 apps:
   config:
     command: usr/bin/config-camera.sh
+    plugs: [hardware-observe, camera, media-control, home]
   gst-launch:
+    command-chain:
+      - usr/bin/launch-omx.sh
     command: usr/bin/gst-launch-1.0
+    plugs: [hardware-observe, camera, media-control, home]
+  gst-discoverer:
+    command-chain:
+      - usr/bin/launch-omx.sh
+    command: usr/bin/gst-discoverer-1.0
+    plugs: [hardware-observe, camera, media-control, home]
   media-ctl:
     command: usr/bin/media-ctl
+    plugs: [hardware-observe, camera, media-control, home]
   v4l2-ctl:
     command: usr/bin/v4l2-ctl
+    plugs: [hardware-observe, camera, media-control, home]
