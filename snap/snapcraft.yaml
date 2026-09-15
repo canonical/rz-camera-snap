@@ -7,11 +7,24 @@ description: |
 
 grade: devel
 confinement: devmode
+adopt-info: dependencies
 
 platforms:
   arm64:
     build-on: [amd64, arm64]
     build-for: [arm64]
+
+layout:
+  /etc/omxr:
+    bind: $SNAP/etc/omxr
+
+environment:
+  LD_LIBRARY_PATH: "$SNAP/usr/lib/aarch64-linux-gnu/pulseaudio:$SNAP/usr/lib/aarch64-linux-gnu:$SNAP/usr/lib:$LD_LIBRARY_PATH"
+  GST_PLUGIN_PATH: "$SNAP/usr/lib/aarch64-linux-gnu/gstreamer-1.0:$SNAP/usr/lib/gstreamer-1.0"
+  GST_PLUGIN_SYSTEM_PATH: "$SNAP/usr/lib/aarch64-linux-gnu/gstreamer-1.0"
+  XDG_CONFIG_DIRS: "$SNAP/etc/xdg:$XDG_CONFIG_DIRS"
+  PATH: "$SNAP/usr/sbin:$SNAP/usr/bin:$SNAP/sbin:$SNAP/bin:$PATH"
+
 parts:
   dependencies:
     plugin: nil
@@ -21,15 +34,35 @@ parts:
       - gstreamer1.0-plugins-bad
       - gstreamer1.0-plugins-ugly
       - gstreamer1.0-tools
+      - gstreamer1.0-plugins-base-apps
+      - libgstreamer1.0-0
+      - libgstreamer-plugins-base1.0-0
+      - libglib2.0-0t64
+      - gstreamer1.0-omx-rz
+      - gstreamer1.0-plugin-vspmfilter
+      - libmmngr1
+      - libmmngrbuf1
+      - librzhwcodecs3
+      - libvspm1
+    override-pull: |
+      craftctl default
+      craftctl set version="0.0.1"+`date +%Y%m%d`
     override-build: |
       craftctl default
       cp "${CRAFT_PROJECT_DIR}/config-camera.sh" "${CRAFT_PART_INSTALL}/usr/bin"
+      cp "${CRAFT_PROJECT_DIR}/launch-omx.sh" "${CRAFT_PART_INSTALL}/usr/bin"
 
 apps:
   config:
     command: usr/bin/config-camera.sh
   gst-launch:
+    command-chain:
+      - usr/bin/launch-omx.sh
     command: usr/bin/gst-launch-1.0
+  gst-discoverer:
+    command-chain:
+      - usr/bin/launch-omx.sh
+    command: usr/bin/gst-discoverer-1.0
   media-ctl:
     command: usr/bin/media-ctl
   v4l2-ctl:
