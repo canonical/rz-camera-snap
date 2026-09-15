@@ -1,12 +1,11 @@
 name: rz-camera-ov5645
 base: core24
-version: '0.0.1'
 summary: Gstreamer and media-ctl needed to use the DSI camera for RZ/G2L
 description: |
   Provides needed binaries and configuration for DSI camera usage.
 
 grade: devel
-confinement: devmode
+confinement: strict
 adopt-info: dependencies
 
 platforms:
@@ -72,15 +71,20 @@ parts:
 apps:
   config:
     command: usr/bin/config-camera.sh
+    plugs: [hardware-observe, camera, media-control, home]
   gst-launch:
     command-chain:
       - usr/bin/launch-omx.sh
     command: usr/bin/gst-launch-1.0
+    plugs: [hardware-observe, camera, media-control, home]
   gst-discoverer:
     command-chain:
       - usr/bin/launch-omx.sh
     command: usr/bin/gst-discoverer-1.0
+    plugs: [hardware-observe, camera, media-control, home]
   media-ctl:
     command: usr/bin/media-ctl
+    plugs: [hardware-observe, camera, media-control, home]
   v4l2-ctl:
     command: usr/bin/v4l2-ctl
+    plugs: [hardware-observe, camera, media-control, home]
