@@ -1,11 +1,12 @@
-name: rz-camera-ov5645
+name: rz-camera-controller
 base: core24
-summary: Gstreamer and media-ctl needed to use the DSI camera for RZ/G2L
+summary: CSI MIPI camera controller for Renesas RZ platforms
 description: |
-  Provides needed binaries and configuration for DSI camera usage.
+  Provides needed binaries and configuration for CSI MIPI camera usage on
+  RZ/G2L (ov5645) and RZ/G3E, RZ/V2H and RZ/V2N (ar0234).
 
 grade: devel
-confinement: strict
+confinement: devmode
 adopt-info: dependencies
 
 platforms:
@@ -62,7 +63,7 @@ parts:
       - libvspm1:$CRAFT_ARCH_BUILD_FOR
     override-pull: |
       craftctl default
-      craftctl set version="0.0.1"+`date +%Y%m%d`
+      craftctl set version="1.0"+`date +%Y%m%d`
     override-build: |
       craftctl default
       cp "${CRAFT_PROJECT_DIR}/config-camera.sh" "${CRAFT_PART_INSTALL}/usr/bin"
