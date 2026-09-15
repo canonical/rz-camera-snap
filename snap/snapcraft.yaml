@@ -14,6 +14,23 @@ platforms:
     build-on: [amd64, arm64]
     build-for: [arm64]
 
+package-repositories:
+  - type: apt
+    architectures: [$CRAFT_ARCH_BUILD_FOR]
+    formats: [deb, deb-src]
+    components: [main, universe]
+    suites: [noble, noble-updates, noble-backports]
+    key-id: F6ECB3762474EDA9D21B7022871920D1991BC93C
+    url: http://ports.ubuntu.com/ubuntu-ports
+
+  - type: apt
+    architectures: [$CRAFT_ARCH_BUILD_FOR]
+    formats: [deb, deb-src]
+    components: [main]
+    suites: [noble]
+    key-id: 1E72A68F43DA1C8E4BB7B59356451E45B00B4CB5
+    url: http://ppa.launchpad.net/ubuntu-on-renesas/public-ppa/ubuntu
+
 layout:
   /etc/omxr:
     bind: $SNAP/etc/omxr
@@ -29,21 +46,21 @@ parts:
   dependencies:
     plugin: nil
     stage-packages:
-      - v4l-utils
-      - gstreamer1.0-plugins-good
-      - gstreamer1.0-plugins-bad
-      - gstreamer1.0-plugins-ugly
-      - gstreamer1.0-tools
-      - gstreamer1.0-plugins-base-apps
-      - libgstreamer1.0-0
-      - libgstreamer-plugins-base1.0-0
-      - libglib2.0-0t64
-      - gstreamer1.0-omx-rz
-      - gstreamer1.0-plugin-vspmfilter
-      - libmmngr1
-      - libmmngrbuf1
-      - librzhwcodecs3
-      - libvspm1
+      - v4l-utils:$CRAFT_ARCH_BUILD_FOR
+      - gstreamer1.0-plugins-good:$CRAFT_ARCH_BUILD_FOR
+      - gstreamer1.0-plugins-bad:$CRAFT_ARCH_BUILD_FOR
+      - gstreamer1.0-plugins-ugly:$CRAFT_ARCH_BUILD_FOR
+      - gstreamer1.0-tools:$CRAFT_ARCH_BUILD_FOR
+      - gstreamer1.0-plugins-base-apps:$CRAFT_ARCH_BUILD_FOR
+      - libgstreamer1.0-0:$CRAFT_ARCH_BUILD_FOR
+      - libgstreamer-plugins-base1.0-0:$CRAFT_ARCH_BUILD_FOR
+      - libglib2.0-0t64:$CRAFT_ARCH_BUILD_FOR
+      - gstreamer1.0-omx-rz:$CRAFT_ARCH_BUILD_FOR
+      - gstreamer1.0-plugin-vspmfilter:$CRAFT_ARCH_BUILD_FOR
+      - libmmngr1:$CRAFT_ARCH_BUILD_FOR
+      - libmmngrbuf1:$CRAFT_ARCH_BUILD_FOR
+      - librzhwcodecs3:$CRAFT_ARCH_BUILD_FOR
+      - libvspm1:$CRAFT_ARCH_BUILD_FOR
     override-pull: |
       craftctl default
       craftctl set version="0.0.1"+`date +%Y%m%d`
