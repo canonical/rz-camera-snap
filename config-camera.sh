@@ -3,8 +3,6 @@
 MEDIACTL="${SNAP}/usr/bin/media-ctl"
 MEDIA_DEVICE=/dev/media0
 
-echo ${SNAP}
-
 # Pipeline subdevices, discovered by name (same as before).
 csi2=$(cat /sys/class/video4linux/v4l-subdev*/name | grep "csi2" | head -n 1)
 ip=$(cat /sys/class/video4linux/v4l-subdev*/name | grep "cru-ip" | head -n 1)
@@ -34,11 +32,25 @@ if cat /sys/class/video4linux/v4l-subdev*/name | grep -q "ov5645"; then
 	${MEDIACTL} -d ${MEDIA_DEVICE} -V "'${sensor}':0 [fmt:${fmt} field:none]"
 	${MEDIACTL} -d ${MEDIA_DEVICE} -V "'${ip}':0 [fmt:${fmt} field:none]"
 
+	echo "Camera configured: sensor '${sensor}' on ${MEDIA_DEVICE} at ${fmt}"
+
 elif cat /sys/class/video4linux/v4l-subdev*/name | grep -q "ar0234"; then
-	# RZ/G3E with the ar0234 CSI camera.
+	# RZ/G3E, RZ/V2H and RZ/V2N with the ar0234 CSI camera.
 	sensor=$(cat /sys/class/video4linux/v4l-subdev*/name | grep "ar0234" | head -n 1)
 	cru_output=$(find_entity "CRU output")
-	fmt="UYVY8_1X16/1280x720"
+
+	# The media bus format differs per platform (same heuristic the vendor
+	# v4l2_cam_test.sh uses): RZ/V2H and RZ/V2N need UYVY8_2X8, RZ/G3E UYVY8_1X16.
+	case "${csi2}:${ip}" in
+	*.csi2[0-9]:*|*:*.video[0-9])
+		# RZ/V2H and RZ/V2N (V2N does not support 1280x720).
+		fmt="UYVY8_2X8/1920x1080"
+		;;
+	*)
+		# RZ/G3E (unchanged).
+		fmt="UYVY8_1X16/1280x720"
+		;;
+	esac
 
 	${MEDIACTL} -d ${MEDIA_DEVICE} -r
 	${MEDIACTL} -d ${MEDIA_DEVICE} -l "'${csi2}':1 -> '${ip}':0 [1]"
@@ -46,6 +58,8 @@ elif cat /sys/class/video4linux/v4l-subdev*/name | grep -q "ar0234"; then
 	${MEDIACTL} -d ${MEDIA_DEVICE} -V "'${sensor}':0 [fmt:${fmt} field:none]"
 	${MEDIACTL} -d ${MEDIA_DEVICE} -V "'${csi2}':0 [fmt:${fmt} field:none]"
 	${MEDIACTL} -d ${MEDIA_DEVICE} -V "'${ip}':0 [fmt:${fmt} field:none]"
+
+	echo "Camera configured: sensor '${sensor}' on ${MEDIA_DEVICE} at ${fmt}"
 
 else
 	echo "No supported camera sensor (ov5645 or ar0234) found" >&2
