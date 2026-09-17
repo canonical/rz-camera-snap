@@ -63,7 +63,7 @@ parts:
       - libvspm1:$CRAFT_ARCH_BUILD_FOR
     override-pull: |
       craftctl default
-      craftctl set version="1.0"+`date +%Y%m%d`
+      craftctl set version="1.1"+`date +%Y%m%d`
     override-build: |
       craftctl default
       cp "${CRAFT_PROJECT_DIR}/config-camera.sh" "${CRAFT_PART_INSTALL}/usr/bin"
@@ -77,7 +77,9 @@ apps:
     command-chain:
       - usr/bin/launch-omx.sh
     command: usr/bin/gst-launch-1.0
-    plugs: [hardware-observe, camera, media-control, home]
+    environment:
+      WAYLAND_DISPLAY: wayland-0
+    plugs: [hardware-observe, camera, media-control, home, wayland, opengl]
   gst-discoverer:
     command-chain:
       - usr/bin/launch-omx.sh
