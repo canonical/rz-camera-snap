@@ -1,5 +1,5 @@
 name: rz-camera-controller
-base: core24
+base: core26
 summary: CSI MIPI camera controller for Renesas RZ platforms
 description: |
   Provides needed binaries and configuration for CSI MIPI camera usage on
@@ -19,7 +19,7 @@ package-repositories:
     architectures: [$CRAFT_ARCH_BUILD_FOR]
     formats: [deb, deb-src]
     components: [main, universe]
-    suites: [noble, noble-updates, noble-backports]
+    suites: [resolute, resolute-updates, resolute-backports]
     key-id: F6ECB3762474EDA9D21B7022871920D1991BC93C
     url: http://ports.ubuntu.com/ubuntu-ports
 
@@ -27,7 +27,7 @@ package-repositories:
     architectures: [$CRAFT_ARCH_BUILD_FOR]
     formats: [deb, deb-src]
     components: [main]
-    suites: [noble]
+    suites: [resolute]
     key-id: 1E72A68F43DA1C8E4BB7B59356451E45B00B4CB5
     url: http://ppa.launchpad.net/ubuntu-on-renesas/public-ppa/ubuntu
 
